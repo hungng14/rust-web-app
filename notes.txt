@@ -1,0 +1,6 @@
+- middleware authentication
+- middleware check params
+- router method get post put ok
+- app state
+- params, body in router get or post, put ok
+- connect database read again ok
