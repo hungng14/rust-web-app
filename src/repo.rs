@@ -32,18 +32,18 @@ pub mod post {
     }
 
     pub fn update_post(conn: &PgConnection, _id: i32, post: models::UpdatePost) -> models::Post{
-        let updatepost = diesel::update(posts.find(_id))
-            .set((published.eq(true), title.eq(post.title), body.eq(post.body)))
+        let result = diesel::update(posts.find(_id))
+            .set((title.eq(post.title), body.eq(post.body)))
             .get_result::<models::Post>(conn)
             .expect(&format!("Unable to find post {}", _id));
-            updatepost
+        result
     }
 
     pub fn delete_post(conn: &PgConnection, _id: i32) -> models::Post{
-        let updatepost = diesel::delete(posts.find(_id))
+        let result = diesel::delete(posts.find(_id))
             .get_result::<models::Post>(conn)
             .expect(&format!("Unable to find post {}", _id));
-            updatepost
+        result
     }
     
 }

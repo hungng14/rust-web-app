@@ -6,6 +6,7 @@ use actix_web::{
 mod config;
 use mylib;
 use actix_files as fs;
+use actix_cors::Cors;
 // use futures::StreamExt;
 
 #[get("/posts")]
@@ -32,7 +33,12 @@ async fn get_post(req: HttpRequest) -> HttpResponse {
 }
 
 #[post("/posts")]
-async fn create_post(new_post: web::Json<mylib::models::NewPost>) -> HttpResponse {
+async fn create_post( new_post: web::Json<mylib::models::NewPost>, req: HttpRequest) -> HttpResponse {
+    let q = req.match_info();
+    println!("{:?}", q);
+
+    println!("new_post {:?}", new_post);
+
     let conn = mylib::db::establish_connection();
     let post = mylib::repo::post::create_post(&conn, new_post.0);
     HttpResponse::Ok().json(mylib::models::Post {..post})
@@ -108,8 +114,14 @@ async fn main() -> std::io::Result<()>{
     
     let server = HttpServer::new( || {
         let logger = middleware::Logger::default();
+        let cors = Cors::default()
+        .allow_any_header()
+        .allow_any_method()
+        .allow_any_origin()
+        .max_age(3600);
         App::new()
             .service(fs::Files::new("/client", ".").show_files_listing().use_last_modified(true))
+            .wrap(cors)
             .wrap(logger)
             .app_data(
                 web::JsonConfig::default()
@@ -121,10 +133,7 @@ async fn main() -> std::io::Result<()>{
                     })
             )
             .route("/", web::get().to(index))
-            .service(
-                web::scope("/")
-                    .service(static_f)
-            )
+            
             .service(
                 web::scope("/api/v1")
                     .service(get_posts)
@@ -133,7 +142,10 @@ async fn main() -> std::io::Result<()>{
                     .service(update_post)
                     .service(delete_post)
             )
-            
+            // .service(
+            //     web::scope("/")
+            //         .service(static_f)
+            // )
             
     });
     println!("Server is running at {}:{}", app_config.host, app_config.port);

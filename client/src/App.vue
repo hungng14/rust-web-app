@@ -1,15 +1,19 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <Post v-on:test-emit="testEmit" />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Post from './components/Post.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Post
+  },
+  methods: {
+    testEmit(data) {
+      console.log(data);
+    }
   }
 }
 </script>
